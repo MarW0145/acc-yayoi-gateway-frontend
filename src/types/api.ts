@@ -8,10 +8,23 @@ export interface HealthResponse {
   status: string
 }
 
+export interface AccountEntry {
+  name: string
+  search_key: string
+  search_key_number: string
+}
+
+export interface AccountGroup {
+  label: string
+  search_key: string
+  accounts: AccountEntry[]
+}
+
 export interface ClientMasterResponse {
   client_id: string
   accounts: string[]
   tax_categories: string[]
+  account_groups: AccountGroup[]
 }
 
 export interface FileUploadResponse {

@@ -1,12 +1,12 @@
-import { AccountSelect } from '../AccountSelect'
+import { YayoiAccountSelect } from '../YayoiAccountSelect'
 import { StatusBadge } from '../StatusBadge'
-import type { YayoiJournalCandidate } from '../../types/api'
+import type { AccountGroup, YayoiJournalCandidate } from '../../types/api'
 import { REVIEW_STATUS_ROW_CLASS } from '../../utils/reviewStatus'
 import { formatStatusCounts, countByReviewStatus } from '../../utils/journalCounts'
 
 interface JournalReviewStepProps {
   candidates: YayoiJournalCandidate[]
-  accountOptions: string[]
+  accountGroups: AccountGroup[]
   loading: boolean
   onBack: () => void
   onCandidateChange: (transactionId: string, patch: Partial<YayoiJournalCandidate>) => void
@@ -15,7 +15,7 @@ interface JournalReviewStepProps {
 
 export function JournalReviewStep({
   candidates,
-  accountOptions,
+  accountGroups,
   loading,
   onBack,
   onCandidateChange,
@@ -33,7 +33,7 @@ export function JournalReviewStep({
       </p>
       <p className="mt-2 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
         銀行明細では、入金は借方に「普通預金」、出金は貸方に「普通預金」が自動設定されます（相手科目は空欄）。
-        入金の貸方・出金の借方は、マスタ登録済み科目をプルダウンから選択してから「仕訳を確定」してください。
+        入金の貸方・出金の借方は、弥生形式の科目リスト（区分・サーチキー付き）から選択してから「仕訳を確定」してください。
       </p>
       {okCount === 0 ? (
         <p className="mt-2 text-sm font-medium text-amber-800">
@@ -79,18 +79,18 @@ export function JournalReviewStep({
                   />
                 </td>
                 <td className="px-2 py-2 align-top">
-                  <AccountSelect
+                  <YayoiAccountSelect
                     value={candidate.debit_account}
-                    options={accountOptions}
+                    groups={accountGroups}
                     onChange={(debit_account) =>
                       onCandidateChange(candidate.transaction_id, { debit_account })
                     }
                   />
                 </td>
                 <td className="px-2 py-2 align-top">
-                  <AccountSelect
+                  <YayoiAccountSelect
                     value={candidate.credit_account}
-                    options={accountOptions}
+                    groups={accountGroups}
                     onChange={(credit_account) =>
                       onCandidateChange(candidate.transaction_id, { credit_account })
                     }

@@ -13,6 +13,7 @@ import {
 } from '../services/gatewayApi'
 import { ApiError } from '../services/apiClient'
 import type {
+  AccountGroup,
   FilePreviewResponse,
   HeaderMappingSuggestion,
   MappingSuggestResponse,
@@ -51,7 +52,7 @@ export function useGatewayWorkflow() {
   const [journalsConfirmed, setJournalsConfirmed] = useState(false)
   const [exportResult, setExportResult] = useState<YayoiExportResponse | null>(null)
   const [exportableCount, setExportableCount] = useState(0)
-  const [masterAccounts, setMasterAccounts] = useState<string[]>([])
+  const [masterAccountGroups, setMasterAccountGroups] = useState<AccountGroup[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -69,12 +70,12 @@ export function useGatewayWorkflow() {
     fetchClientMasters(clientId)
       .then((response) => {
         if (!cancelled) {
-          setMasterAccounts(response.accounts)
+          setMasterAccountGroups(response.account_groups)
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setMasterAccounts([])
+          setMasterAccountGroups([])
         }
       })
     return () => {
@@ -256,7 +257,7 @@ export function useGatewayWorkflow() {
     setJournalsConfirmed(false)
     setExportResult(null)
     setExportableCount(0)
-    setMasterAccounts([])
+    setMasterAccountGroups([])
     setError(null)
   }, [])
 
@@ -276,7 +277,7 @@ export function useGatewayWorkflow() {
     journalsConfirmed,
     exportResult,
     exportableCount,
-    masterAccounts,
+    masterAccountGroups,
     loading,
     error,
     clearError,

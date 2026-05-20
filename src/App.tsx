@@ -71,7 +71,7 @@ function App() {
         {workflow.step === 'journal' ? (
           <JournalReviewStep
             candidates={workflow.journalCandidates}
-            accountOptions={workflow.masterAccounts}
+            accountGroups={workflow.masterAccountGroups}
             loading={workflow.loading}
             onBack={() => workflow.goToStep('mapping')}
             onCandidateChange={workflow.updateJournalCandidate}
