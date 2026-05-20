@@ -1,32 +1,96 @@
-import { useEffect, useState } from 'react'
+import { AppHeader } from './components/AppHeader'
+import { ErrorAlert } from './components/ErrorAlert'
+import { StepIndicator } from './components/StepIndicator'
+import { ClientStep } from './components/steps/ClientStep'
+import { ExportStep } from './components/steps/ExportStep'
+import { JournalReviewStep } from './components/steps/JournalReviewStep'
+import { MappingStep } from './components/steps/MappingStep'
+import { UploadStep } from './components/steps/UploadStep'
+import { useGatewayWorkflow } from './hooks/useGatewayWorkflow'
 
 function App() {
-  const [health, setHealth] = useState<string>('…')
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((r) => r.json())
-      .then((j) => setHealth(JSON.stringify(j)))
-      .catch(() => setHealth('接続失敗（バックエンドを起動しましたか？）'))
-  }, [])
+  const workflow = useGatewayWorkflow()
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white px-6 py-4">
-        <h1 className="text-xl font-semibold tracking-tight">
-          弥生会計取込前データ整形・検証（MVP）
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          acc-yayoi-gateway — Week 1 基盤（FastAPI + React）
-        </p>
-      </header>
-      <main className="mx-auto max-w-3xl px-6 py-8">
-        <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-500">API 疎通</h2>
-          <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-4 text-left text-sm">
-            {health}
-          </pre>
-        </section>
+      <AppHeader healthStatus={workflow.healthStatus} />
+      <main className="mx-auto max-w-6xl px-6 py-8">
+        <div className="mb-6">
+          <StepIndicator current={workflow.step} />
+        </div>
+
+        <div className="mb-6">
+          <ErrorAlert message={workflow.error} onDismiss={workflow.clearError} />
+        </div>
+
+        {workflow.sessionId ? (
+          <aside className="mb-6 rounded-lg border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm">
+            <span className="font-medium text-slate-800">セッション</span>{' '}
+            <span className="font-mono">{workflow.sessionId}</span>
+            {workflow.originalFilename ? (
+              <>
+                {' '}
+                — <span>{workflow.originalFilename}</span>
+              </>
+            ) : null}
+          </aside>
+        ) : null}
+
+        {workflow.step === 'client' ? (
+          <ClientStep
+            clientId={workflow.clientId}
+            sourceType={workflow.sourceType}
+            loading={workflow.loading}
+            onClientIdChange={workflow.setClientId}
+            onSourceTypeChange={workflow.setSourceType}
+            onSubmit={workflow.submitClient}
+          />
+        ) : null}
+
+        {workflow.step === 'upload' ? (
+          <UploadStep
+            clientId={workflow.clientId}
+            loading={workflow.loading}
+            onBack={() => workflow.goToStep('client')}
+            onUpload={workflow.submitUpload}
+          />
+        ) : null}
+
+        {workflow.step === 'mapping' && workflow.preview && workflow.mappingSuggestions ? (
+          <MappingStep
+            preview={workflow.preview}
+            suggestions={workflow.mappingSuggestions.suggestions}
+            headerMappings={workflow.headerMappings}
+            loading={workflow.loading}
+            onBack={() => workflow.goToStep('upload')}
+            onMappingChange={workflow.updateHeaderMapping}
+            onSubmit={workflow.submitMapping}
+          />
+        ) : null}
+
+        {workflow.step === 'journal' ? (
+          <JournalReviewStep
+            candidates={workflow.journalCandidates}
+            accountOptions={workflow.masterAccounts}
+            loading={workflow.loading}
+            onBack={() => workflow.goToStep('mapping')}
+            onCandidateChange={workflow.updateJournalCandidate}
+            onSubmit={workflow.submitJournalConfirm}
+          />
+        ) : null}
+
+        {workflow.step === 'export' ? (
+          <ExportStep
+            sessionId={workflow.sessionId}
+            journalsConfirmed={workflow.journalsConfirmed}
+            exportableCount={workflow.exportableCount}
+            exportResult={workflow.exportResult}
+            loading={workflow.loading}
+            onBack={() => workflow.goToStep('journal')}
+            onExport={workflow.submitExport}
+            onRestart={workflow.resetWorkflow}
+          />
+        ) : null}
       </main>
     </div>
   )
