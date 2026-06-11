@@ -37,8 +37,7 @@ export function MappingStep({
 
         {sourceType === 'credit_card' && (
           <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700">
-            クレジットカードモード：「利用金額」列を<strong>出金額</strong>にマッピングしてください。
-            「入金額」（返金列）は任意です。
+            利用金額は<strong>出金額</strong>に自動設定されます。返金がある場合は<strong>入金額</strong>列も設定してください。
           </div>
         )}
 
@@ -47,9 +46,8 @@ export function MappingStep({
             <thead className="bg-slate-50 text-slate-600">
               <tr>
                 <th className="px-3 py-2 font-medium">CSV ヘッダー</th>
-                <th className="px-3 py-2 font-medium">内部フィールド</th>
-                <th className="px-3 py-2 font-medium">提案</th>
-                <th className="px-3 py-2 font-medium">信頼度</th>
+                <th className="px-3 py-2 font-medium">マッピング先</th>
+                <th className="px-3 py-2 font-medium">自動判定の確度</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -71,20 +69,18 @@ export function MappingStep({
                         ))}
                       </select>
                     </td>
-                    <td className="px-3 py-2 text-slate-600">
-                      {suggestion?.suggested_field ?? '—'}
-                    </td>
                     <td className="px-3 py-2">
                       {suggestion ? (
                         <span
                           className={
-                            suggestion.needs_review ? 'text-amber-700' : 'text-emerald-700'
+                            suggestion.needs_review ? 'text-amber-600' : 'text-emerald-600'
                           }
                         >
+                          {suggestion.needs_review ? '要確認 ' : ''}
                           {(suggestion.confidence * 100).toFixed(0)}%
                         </span>
                       ) : (
-                        '—'
+                        <span className="text-slate-400">—</span>
                       )}
                     </td>
                   </tr>

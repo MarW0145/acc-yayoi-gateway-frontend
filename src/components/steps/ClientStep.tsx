@@ -50,10 +50,8 @@ export function ClientStep({
 
       {sourceType === 'credit_card' && (
         <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-          <span className="font-semibold">クレジットカードモード：</span>
-          計上方式（方式A＝利用時計上 / 方式B＝引落時計上）は顧客マスターから自動読み込みされます。
-          未設定の場合は全行 REVIEW_REQUIRED になります。
-          列マッピング時に「入金額」列のマッピングは省略可能です（返金列がある場合のみ設定）。
+          <span className="font-semibold">ご注意：</span>
+          返金・キャッシュバックの明細がない場合は、次の列マッピングで「入金額」の設定を省略できます。
         </div>
       )}
 

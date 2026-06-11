@@ -32,7 +32,7 @@ export const INTERNAL_FIELD_LABELS: Record<string, string> = {
 }
 
 export const WORKFLOW_STEPS = [
-  { id: 'client' as const, label: '顧客' },
+  { id: 'client' as const, label: '顧客選択' },
   { id: 'upload' as const, label: 'アップロード' },
   { id: 'mapping' as const, label: '列マッピング' },
   { id: 'journal' as const, label: '仕訳レビュー' },

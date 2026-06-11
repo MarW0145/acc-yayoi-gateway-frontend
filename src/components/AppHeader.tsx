@@ -18,7 +18,7 @@ export function AppHeader({ healthStatus }: AppHeaderProps) {
             弥生会計取込前データ整形・検証
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            acc-yayoi-gateway MVP — 銀行 CSV 取込フロー
+            acc-yayoi-gateway MVP
           </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-medium ${healthClass}`}>
