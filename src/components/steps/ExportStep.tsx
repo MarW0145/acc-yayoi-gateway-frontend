@@ -7,6 +7,9 @@ interface ExportStepProps {
   sessionId: string | null
   journalsConfirmed: boolean
   exportableCount: number
+  warningCount: number
+  includeWarning: boolean
+  onIncludeWarningChange: (value: boolean) => void
   exportResult: YayoiExportResponse | null
   loading: boolean
   onBack: () => void
@@ -18,6 +21,9 @@ export function ExportStep({
   sessionId,
   journalsConfirmed,
   exportableCount,
+  warningCount,
+  includeWarning,
+  onIncludeWarningChange,
   exportResult,
   loading,
   onBack,
@@ -38,7 +44,7 @@ export function ExportStep({
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = `yayoi_export_${exportResult.batch_id}.zip`
+      anchor.download = exportResult.zip_filename ?? `yayoi_export_${exportResult.batch_id}.zip`
       anchor.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -71,7 +77,30 @@ export function ExportStep({
       {journalsConfirmed && exportableCount > 0 ? (
         <p className="mt-4 text-sm text-emerald-800">
           エクスポート対象: <span className="font-semibold">{exportableCount}</span> 件（OK）
+          {warningCount > 0 && !includeWarning ? (
+            <span className="ml-2 text-amber-700">
+              + WARNING {warningCount} 件（下記オプションで追加可）
+            </span>
+          ) : null}
         </p>
+      ) : null}
+
+      {journalsConfirmed && warningCount > 0 ? (
+        <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
+          <input
+            id="include-warning-toggle"
+            type="checkbox"
+            checked={includeWarning}
+            onChange={(e) => onIncludeWarningChange(e.target.checked)}
+            className="mt-0.5 h-4 w-4 cursor-pointer accent-amber-600"
+          />
+          <label htmlFor="include-warning-toggle" className="cursor-pointer text-amber-900">
+            <span className="font-medium">WARNING 行も含めてエクスポートする</span>
+            <span className="ml-1 text-amber-700">
+              （{warningCount} 件 — 中信頼度。担当者が内容を確認した上でチェックしてください）
+            </span>
+          </label>
+        </div>
       ) : null}
 
       {exportResult ? (
@@ -81,15 +110,22 @@ export function ExportStep({
             <dd className="font-mono text-xs">{exportResult.batch_id}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">session_id</dt>
-            <dd className="font-mono text-xs">{exportResult.session_id}</dd>
+            <dt className="text-slate-500">ZIP ファイル名</dt>
+            <dd className="font-mono text-xs text-slate-700">{exportResult.zip_filename}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">出力件数（OK）</dt>
-            <dd className="font-semibold text-emerald-800">{exportResult.exported_count}</dd>
+            <dt className="text-slate-500">出力件数</dt>
+            <dd className="font-semibold text-emerald-800">
+              {exportResult.exported_count}
+              {exportResult.include_warning ? (
+                <span className="ml-1 text-xs font-normal text-amber-700">（OK + WARNING）</span>
+              ) : (
+                <span className="ml-1 text-xs font-normal text-slate-500">（OK のみ）</span>
+              )}
+            </dd>
           </div>
           <div>
-            <dt className="text-slate-500">スキップ（非 OK）</dt>
+            <dt className="text-slate-500">スキップ（非出力）</dt>
             <dd>{exportResult.skipped_count}</dd>
           </div>
           <div>

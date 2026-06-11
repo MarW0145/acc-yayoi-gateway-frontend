@@ -20,11 +20,19 @@ export interface AccountGroup {
   accounts: AccountEntry[]
 }
 
+export interface TaxCategoryEntry {
+  name: string
+  abbreviation: string
+  search_key: string
+}
+
 export interface ClientMasterResponse {
   client_id: string
   accounts: string[]
   tax_categories: string[]
   account_groups: AccountGroup[]
+  tax_category_entries: TaxCategoryEntry[]
+  card_booking_method: 'A' | 'B' | null
 }
 
 export interface FileUploadResponse {
@@ -101,6 +109,7 @@ export interface JournalPreviewResponse {
   source_transactions: unknown[]
   journal_candidates: YayoiJournalCandidate[]
   exportable_count: number
+  duplicate_count: number
 }
 
 export interface JournalConfirmResponse {
@@ -112,6 +121,11 @@ export interface JournalConfirmResponse {
   exportable_count: number
 }
 
+export interface YayoiExportRequest {
+  session_id: string
+  include_warning?: boolean
+}
+
 export interface YayoiExportResponse {
   batch_id: string
   session_id: string
@@ -120,6 +134,8 @@ export interface YayoiExportResponse {
   skipped_count: number
   error_count: number
   download_url: string
+  zip_filename: string
   warnings: string[]
   confirmation_workbook_filename: string | null
+  include_warning: boolean
 }

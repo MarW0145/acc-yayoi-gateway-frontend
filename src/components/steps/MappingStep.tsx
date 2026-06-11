@@ -1,10 +1,11 @@
 import { INTERNAL_FIELD_OPTIONS } from '../../constants/mappingFields'
-import type { FilePreviewResponse, HeaderMappingSuggestion } from '../../types/api'
+import type { FilePreviewResponse, HeaderMappingSuggestion, SourceType } from '../../types/api'
 
 interface MappingStepProps {
   preview: FilePreviewResponse
   suggestions: HeaderMappingSuggestion[]
   headerMappings: Record<string, string>
+  sourceType: SourceType
   loading: boolean
   onBack: () => void
   onMappingChange: (header: string, field: string) => void
@@ -15,6 +16,7 @@ export function MappingStep({
   preview,
   suggestions,
   headerMappings,
+  sourceType,
   loading,
   onBack,
   onMappingChange,
@@ -32,6 +34,13 @@ export function MappingStep({
           {preview.original_filename} — エンコーディング: {preview.encoding}（信頼度{' '}
           {(preview.encoding_confidence * 100).toFixed(0)}%）
         </p>
+
+        {sourceType === 'credit_card' && (
+          <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+            クレジットカードモード：「利用金額」列を<strong>出金額</strong>にマッピングしてください。
+            「入金額」（返金列）は任意です。
+          </div>
+        )}
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-left text-sm">

@@ -15,6 +15,13 @@ export const REQUIRED_MAPPING_FIELDS = [
   'source_outflow_amount',
 ] as const
 
+// クレカは入金列（返金）が存在しないことが多いため source_inflow_amount は任意
+export const CREDIT_CARD_REQUIRED_MAPPING_FIELDS = [
+  'transaction_date',
+  'description',
+  'source_outflow_amount',
+] as const
+
 export const INTERNAL_FIELD_LABELS: Record<string, string> = {
   transaction_date: '取引日',
   description: '摘要',

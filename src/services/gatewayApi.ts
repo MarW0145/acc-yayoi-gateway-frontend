@@ -10,6 +10,7 @@ import type {
   MappingConfirmResponse,
   MappingSuggestResponse,
   SourceType,
+  YayoiExportRequest,
   YayoiExportResponse,
   YayoiJournalCandidate,
 } from '../types/api'
@@ -77,11 +78,15 @@ export function confirmJournals(
   })
 }
 
-export function exportYayoi(sessionId: string): Promise<YayoiExportResponse> {
+export function exportYayoi(
+  sessionId: string,
+  options: Omit<YayoiExportRequest, 'session_id'> = {},
+): Promise<YayoiExportResponse> {
+  const payload: YayoiExportRequest = { session_id: sessionId, ...options }
   return apiFetch<YayoiExportResponse>(`${API_BASE}/export/yayoi`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ session_id: sessionId }),
+    body: JSON.stringify(payload),
   })
 }
 

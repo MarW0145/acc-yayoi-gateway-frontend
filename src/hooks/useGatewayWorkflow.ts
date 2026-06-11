@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { REQUIRED_MAPPING_FIELDS } from '../constants/mappingFields'
+import { CREDIT_CARD_REQUIRED_MAPPING_FIELDS, REQUIRED_MAPPING_FIELDS } from '../constants/mappingFields'
 import {
   confirmJournals,
   confirmMapping,
@@ -18,6 +18,7 @@ import type {
   HeaderMappingSuggestion,
   MappingSuggestResponse,
   SourceType,
+  TaxCategoryEntry,
   WorkflowStep,
   YayoiExportResponse,
   YayoiJournalCandidate,
@@ -33,9 +34,11 @@ function buildMappingsFromSuggestions(suggestions: HeaderMappingSuggestion[]): R
   return mappings
 }
 
-function missingRequiredFields(mappings: Record<string, string>): string[] {
+function missingRequiredFields(mappings: Record<string, string>, sourceType: string): string[] {
   const mapped = new Set(Object.values(mappings))
-  return REQUIRED_MAPPING_FIELDS.filter((field) => !mapped.has(field))
+  const required =
+    sourceType === 'credit_card' ? CREDIT_CARD_REQUIRED_MAPPING_FIELDS : REQUIRED_MAPPING_FIELDS
+  return required.filter((field) => !mapped.has(field))
 }
 
 export function useGatewayWorkflow() {
@@ -52,7 +55,11 @@ export function useGatewayWorkflow() {
   const [journalsConfirmed, setJournalsConfirmed] = useState(false)
   const [exportResult, setExportResult] = useState<YayoiExportResponse | null>(null)
   const [exportableCount, setExportableCount] = useState(0)
+  const [duplicateCount, setDuplicateCount] = useState(0)
   const [masterAccountGroups, setMasterAccountGroups] = useState<AccountGroup[]>([])
+  const [masterTaxEntries, setMasterTaxEntries] = useState<TaxCategoryEntry[]>([])
+  const [cardBookingMethod, setCardBookingMethod] = useState<'A' | 'B' | null>(null)
+  const [includeWarning, setIncludeWarning] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -71,11 +78,15 @@ export function useGatewayWorkflow() {
       .then((response) => {
         if (!cancelled) {
           setMasterAccountGroups(response.account_groups)
+          setMasterTaxEntries(response.tax_category_entries ?? [])
+          setCardBookingMethod(response.card_booking_method ?? null)
         }
       })
       .catch(() => {
         if (!cancelled) {
           setMasterAccountGroups([])
+          setMasterTaxEntries([])
+          setCardBookingMethod(null)
         }
       })
     return () => {
@@ -162,7 +173,7 @@ export function useGatewayWorkflow() {
       setError('セッションがありません。先にファイルをアップロードしてください')
       return
     }
-    const missing = missingRequiredFields(headerMappings)
+    const missing = missingRequiredFields(headerMappings, sourceType)
     if (missing.length > 0) {
       setError(`必須フィールドが未マッピングです: ${missing.join(', ')}`)
       return
@@ -185,6 +196,7 @@ export function useGatewayWorkflow() {
     }
     setJournalCandidates(journals.journal_candidates)
     setExportableCount(journals.exportable_count)
+    setDuplicateCount(journals.duplicate_count ?? 0)
     setJournalsConfirmed(false)
     goToStep('journal')
   }, [goToStep, headerMappings, runAsync, sessionId, sourceType])
@@ -240,11 +252,11 @@ export function useGatewayWorkflow() {
       )
       return
     }
-    const result = await runAsync(() => exportYayoi(sessionId))
+    const result = await runAsync(() => exportYayoi(sessionId, { include_warning: includeWarning }))
     if (result) {
       setExportResult(result)
     }
-  }, [exportableCount, journalsConfirmed, runAsync, sessionId])
+  }, [exportableCount, includeWarning, journalsConfirmed, runAsync, sessionId])
 
   const resetWorkflow = useCallback(() => {
     setStep('client')
@@ -257,9 +269,14 @@ export function useGatewayWorkflow() {
     setJournalsConfirmed(false)
     setExportResult(null)
     setExportableCount(0)
+    setDuplicateCount(0)
     setMasterAccountGroups([])
+    setMasterTaxEntries([])
+    setIncludeWarning(false)
     setError(null)
   }, [])
+
+  const warningCount = journalCandidates.filter((c) => c.review_status === 'WARNING').length
 
   return {
     healthStatus,
@@ -277,7 +294,13 @@ export function useGatewayWorkflow() {
     journalsConfirmed,
     exportResult,
     exportableCount,
+    warningCount,
+    duplicateCount,
     masterAccountGroups,
+    masterTaxEntries,
+    cardBookingMethod,
+    includeWarning,
+    setIncludeWarning,
     loading,
     error,
     clearError,

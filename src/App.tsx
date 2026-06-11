@@ -61,6 +61,7 @@ function App() {
             preview={workflow.preview}
             suggestions={workflow.mappingSuggestions.suggestions}
             headerMappings={workflow.headerMappings}
+            sourceType={workflow.sourceType}
             loading={workflow.loading}
             onBack={() => workflow.goToStep('upload')}
             onMappingChange={workflow.updateHeaderMapping}
@@ -72,6 +73,8 @@ function App() {
           <JournalReviewStep
             candidates={workflow.journalCandidates}
             accountGroups={workflow.masterAccountGroups}
+            taxEntries={workflow.masterTaxEntries}
+            duplicateCount={workflow.duplicateCount}
             loading={workflow.loading}
             onBack={() => workflow.goToStep('mapping')}
             onCandidateChange={workflow.updateJournalCandidate}
@@ -84,6 +87,9 @@ function App() {
             sessionId={workflow.sessionId}
             journalsConfirmed={workflow.journalsConfirmed}
             exportableCount={workflow.exportableCount}
+            warningCount={workflow.warningCount}
+            includeWarning={workflow.includeWarning}
+            onIncludeWarningChange={workflow.setIncludeWarning}
             exportResult={workflow.exportResult}
             loading={workflow.loading}
             onBack={() => workflow.goToStep('journal')}
