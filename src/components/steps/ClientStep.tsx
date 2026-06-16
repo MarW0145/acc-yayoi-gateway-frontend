@@ -7,6 +7,7 @@ interface ClientStepProps {
   onClientIdChange: (value: string) => void
   onSourceTypeChange: (value: SourceType) => void
   onSubmit: () => void
+  onOpenMasterSettings: () => void
 }
 
 export function ClientStep({
@@ -16,6 +17,7 @@ export function ClientStep({
   onClientIdChange,
   onSourceTypeChange,
   onSubmit,
+  onOpenMasterSettings,
 }: ClientStepProps) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
@@ -64,6 +66,7 @@ export function ClientStep({
         >
           次へ：ファイルアップロード
         </button>
+        {/* A-9 マスター管理 UI：実装途中のため非表示。完成・テスト後に解除すること */}
       </div>
     </section>
   )

@@ -5,6 +5,7 @@ import { ClientStep } from './components/steps/ClientStep'
 import { ExportStep } from './components/steps/ExportStep'
 import { JournalReviewStep } from './components/steps/JournalReviewStep'
 import { MappingStep } from './components/steps/MappingStep'
+import { MasterStep } from './components/steps/MasterStep'
 import { UploadStep } from './components/steps/UploadStep'
 import { useGatewayWorkflow } from './hooks/useGatewayWorkflow'
 
@@ -44,6 +45,7 @@ function App() {
             onClientIdChange={workflow.setClientId}
             onSourceTypeChange={workflow.setSourceType}
             onSubmit={workflow.submitClient}
+            onOpenMasterSettings={workflow.openMasterSettings}
           />
         ) : null}
 
@@ -79,6 +81,18 @@ function App() {
             onBack={() => workflow.goToStep('mapping')}
             onCandidateChange={workflow.updateJournalCandidate}
             onSubmit={workflow.submitJournalConfirm}
+          />
+        ) : null}
+
+        {workflow.step === 'master' ? (
+          <MasterStep
+            clientId={workflow.clientId}
+            clientAccounts={workflow.masterClientAccounts}
+            clientTaxCategories={workflow.masterClientTaxCategories}
+            cardBookingMethod={workflow.cardBookingMethod}
+            loading={workflow.loading}
+            onBack={() => workflow.goToStep('client')}
+            onSave={workflow.submitMasterUpdate}
           />
         ) : null}
 

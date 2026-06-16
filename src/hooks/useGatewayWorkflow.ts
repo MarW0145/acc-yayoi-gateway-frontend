@@ -9,6 +9,7 @@ import {
   fetchMappingSuggestions,
   fetchPreview,
   previewJournals,
+  updateClientMasters,
   uploadFile,
 } from '../services/gatewayApi'
 import { ApiError } from '../services/apiClient'
@@ -59,6 +60,9 @@ export function useGatewayWorkflow() {
   const [masterAccountGroups, setMasterAccountGroups] = useState<AccountGroup[]>([])
   const [masterTaxEntries, setMasterTaxEntries] = useState<TaxCategoryEntry[]>([])
   const [cardBookingMethod, setCardBookingMethod] = useState<'A' | 'B' | null>(null)
+  const [masterClientAccounts, setMasterClientAccounts] = useState<string[]>([])
+  const [masterClientTaxCategories, setMasterClientTaxCategories] = useState<string[]>([])
+  const [masterSaved, setMasterSaved] = useState(false)
   const [includeWarning, setIncludeWarning] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -70,7 +74,7 @@ export function useGatewayWorkflow() {
   }, [])
 
   useEffect(() => {
-    if (step !== 'journal') {
+    if (step !== 'journal' && step !== 'master') {
       return
     }
     let cancelled = false
@@ -80,6 +84,8 @@ export function useGatewayWorkflow() {
           setMasterAccountGroups(response.account_groups)
           setMasterTaxEntries(response.tax_category_entries ?? [])
           setCardBookingMethod(response.card_booking_method ?? null)
+          setMasterClientAccounts(response.client_accounts ?? [])
+          setMasterClientTaxCategories(response.client_tax_categories ?? [])
         }
       })
       .catch(() => {
@@ -87,6 +93,8 @@ export function useGatewayWorkflow() {
           setMasterAccountGroups([])
           setMasterTaxEntries([])
           setCardBookingMethod(null)
+          setMasterClientAccounts([])
+          setMasterClientTaxCategories([])
         }
       })
     return () => {
@@ -114,6 +122,30 @@ export function useGatewayWorkflow() {
     setStep(next)
     setError(null)
   }, [])
+
+  const openMasterSettings = useCallback(() => {
+    setMasterSaved(false)
+    goToStep('master')
+  }, [goToStep])
+
+  const submitMasterUpdate = useCallback(
+    async (accounts: string[], taxCategories: string[], method: 'A' | 'B' | null) => {
+      const result = await runAsync(() =>
+        updateClientMasters(clientId, {
+          accounts,
+          tax_categories: taxCategories,
+          card_booking_method: method,
+        }),
+      )
+      if (result) {
+        setMasterClientAccounts(result.client_accounts ?? [])
+        setMasterClientTaxCategories(result.client_tax_categories ?? [])
+        setCardBookingMethod(result.card_booking_method ?? null)
+        setMasterSaved(true)
+      }
+    },
+    [clientId, runAsync],
+  )
 
   const submitClient = useCallback(() => {
     const trimmed = clientId.trim()
@@ -272,6 +304,9 @@ export function useGatewayWorkflow() {
     setDuplicateCount(0)
     setMasterAccountGroups([])
     setMasterTaxEntries([])
+    setMasterClientAccounts([])
+    setMasterClientTaxCategories([])
+    setMasterSaved(false)
     setIncludeWarning(false)
     setError(null)
   }, [])
@@ -298,6 +333,9 @@ export function useGatewayWorkflow() {
     duplicateCount,
     masterAccountGroups,
     masterTaxEntries,
+    masterClientAccounts,
+    masterClientTaxCategories,
+    masterSaved,
     cardBookingMethod,
     includeWarning,
     setIncludeWarning,
@@ -305,6 +343,8 @@ export function useGatewayWorkflow() {
     error,
     clearError,
     goToStep,
+    openMasterSettings,
+    submitMasterUpdate,
     submitClient,
     submitUpload,
     updateHeaderMapping,

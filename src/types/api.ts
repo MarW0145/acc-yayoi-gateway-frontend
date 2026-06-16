@@ -2,7 +2,7 @@ export type SourceType = 'bank' | 'credit_card' | 'cashbook' | 'generic'
 
 export type ReviewStatus = 'OK' | 'WARNING' | 'REVIEW_REQUIRED' | 'ERROR'
 
-export type WorkflowStep = 'client' | 'upload' | 'mapping' | 'journal' | 'export'
+export type WorkflowStep = 'client' | 'upload' | 'mapping' | 'journal' | 'export' | 'master'
 
 export interface HealthResponse {
   status: string
@@ -32,6 +32,14 @@ export interface ClientMasterResponse {
   tax_categories: string[]
   account_groups: AccountGroup[]
   tax_category_entries: TaxCategoryEntry[]
+  card_booking_method: 'A' | 'B' | null
+  client_accounts: string[]
+  client_tax_categories: string[]
+}
+
+export interface UpdateMasterRequest {
+  accounts: string[]
+  tax_categories: string[]
   card_booking_method: 'A' | 'B' | null
 }
 

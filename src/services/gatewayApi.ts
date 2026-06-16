@@ -10,6 +10,7 @@ import type {
   MappingConfirmResponse,
   MappingSuggestResponse,
   SourceType,
+  UpdateMasterRequest,
   YayoiExportRequest,
   YayoiExportResponse,
   YayoiJournalCandidate,
@@ -23,6 +24,17 @@ export function fetchHealth(): Promise<HealthResponse> {
 
 export function fetchClientMasters(clientId: string): Promise<ClientMasterResponse> {
   return apiFetch<ClientMasterResponse>(`${API_BASE}/masters/${encodeURIComponent(clientId)}`)
+}
+
+export function updateClientMasters(
+  clientId: string,
+  payload: UpdateMasterRequest,
+): Promise<ClientMasterResponse> {
+  return apiFetch<ClientMasterResponse>(`${API_BASE}/masters/${encodeURIComponent(clientId)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
 }
 
 export function uploadFile(clientId: string, file: File): Promise<FileUploadResponse> {
