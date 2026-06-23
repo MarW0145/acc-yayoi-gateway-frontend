@@ -1,21 +1,57 @@
+import { useState } from 'react'
 import { AppHeader } from './components/AppHeader'
 import { ErrorAlert } from './components/ErrorAlert'
 import { StepIndicator } from './components/StepIndicator'
 import { ClientStep } from './components/steps/ClientStep'
 import { ExportStep } from './components/steps/ExportStep'
+import { ImageUploadStep } from './components/steps/ImageUploadStep'
 import { JournalReviewStep } from './components/steps/JournalReviewStep'
 import { MappingStep } from './components/steps/MappingStep'
 import { MasterStep } from './components/steps/MasterStep'
 import { UploadStep } from './components/steps/UploadStep'
 import { useGatewayWorkflow } from './hooks/useGatewayWorkflow'
 
+type AppMode = 'workflow' | 'image-upload'
+
 function App() {
   const workflow = useGatewayWorkflow()
+  const [mode, setMode] = useState<AppMode>('workflow')
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <AppHeader healthStatus={workflow.healthStatus} />
       <main className="mx-auto max-w-6xl px-6 py-8">
+        <div className="mb-6 flex gap-2 border-b border-slate-200 pb-4">
+          <button
+            type="button"
+            onClick={() => setMode('workflow')}
+            className={[
+              'rounded-md px-4 py-2 text-sm font-medium transition-colors',
+              mode === 'workflow'
+                ? 'bg-slate-900 text-white'
+                : 'border border-slate-300 text-slate-600 hover:bg-slate-50',
+            ].join(' ')}
+          >
+            CSV ワークフロー
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('image-upload')}
+            className={[
+              'rounded-md px-4 py-2 text-sm font-medium transition-colors',
+              mode === 'image-upload'
+                ? 'bg-slate-900 text-white'
+                : 'border border-slate-300 text-slate-600 hover:bg-slate-50',
+            ].join(' ')}
+          >
+            📷 画像から CSV 変換
+          </button>
+        </div>
+
+        {mode === 'image-upload' ? (
+          <ImageUploadStep onBack={() => setMode('workflow')} />
+        ) : (
+          <>
         <div className="mb-6">
           <StepIndicator current={workflow.step} />
         </div>
@@ -111,6 +147,8 @@ function App() {
             onRestart={workflow.resetWorkflow}
           />
         ) : null}
+          </>
+        )}
       </main>
     </div>
   )

@@ -3,7 +3,9 @@ import type {
   ClientMasterResponse,
   FilePreviewResponse,
   FileUploadResponse,
+  GeminiModel,
   HealthResponse,
+  ImageAnalysisResponse,
   JournalConfirmResponse,
   JournalPreviewResponse,
   MappingConfirmRequest,
@@ -104,4 +106,19 @@ export function exportYayoi(
 
 export function downloadExportPackage(downloadUrl: string): Promise<Blob> {
   return apiFetchBlob(downloadUrl)
+}
+
+export function analyzeImages(
+  files: File[],
+  model: GeminiModel = 'gemini-3.5-flash',
+): Promise<ImageAnalysisResponse> {
+  const form = new FormData()
+  for (const file of files) {
+    form.append('files', file)
+  }
+  form.append('model', model)
+  return apiFetch<ImageAnalysisResponse>(`${API_BASE}/image/analyze`, {
+    method: 'POST',
+    body: form,
+  })
 }

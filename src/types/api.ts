@@ -134,6 +134,16 @@ export interface YayoiExportRequest {
   include_warning?: boolean
 }
 
+export type GeminiModel = 'gemini-3.5-flash' | 'gemini-2.5-pro' | 'gemini-2.5-flash'
+
+export interface ImageAnalysisResponse {
+  image_type: 'bank_passbook' | 'statement'
+  csv_content: string
+  transaction_count: number
+  filename: string
+  headers: string[]
+}
+
 export interface YayoiExportResponse {
   batch_id: string
   session_id: string
